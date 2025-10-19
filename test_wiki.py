@@ -1,7 +1,10 @@
-import pytest
-from unittest.mock import patch
+"""
+Test module to test the wki.py file and it's methods
+"""
 import sys
-from project import get_summary, get_full_content, get_results, main
+from unittest.mock import patch
+import pytest
+from wiki import get_summary, get_full_content, get_results, main
 
 
 class MockPage:
@@ -46,8 +49,11 @@ def test_get_summary_page_error(capsys, mock_wikipedia):
 
 def test_get_summary_disambiguation_error(capsys, mock_wikipedia):
     from wikipedia.exceptions import DisambiguationError
+    # DisambiguationError expects the second positional argument (may_refer_to)
+    # to be a list of possible options; pass it positionally instead of using
+    # the unsupported 'options' keyword.
     mock_wikipedia["summary"].side_effect = DisambiguationError(
-        "Test_Page", options=["Option A", "Option B"])
+        "Test_Page", ["Option A", "Option B"])
     get_summary("Test_Page")
     captured = capsys.readouterr()
     assert "Disambiguation: 'Test_Page' may refer to multiple topics." in captured.out
